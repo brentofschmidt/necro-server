@@ -1,0 +1,24 @@
+# .NET build outputs
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+
+# IDE
+.vs/
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+logs/
+
+# Local config that may contain secrets
+appsettings.Local.json
+appsettings.Development.json
+
+# OS
+.DS_Store
+Thumbs.db

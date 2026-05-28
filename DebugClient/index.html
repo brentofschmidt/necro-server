@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Necro DebugClient</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      background: #0d0f12;
+      color: #d4d4d4;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+    }
+    header {
+      padding: 8px 12px;
+      background: #161a20;
+      border-bottom: 1px solid #2a2f37;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    h1 { font-size: 14px; margin: 0; font-weight: 600; }
+    .status { padding: 2px 8px; border-radius: 3px; font-size: 11px; }
+    .status.connected { background: #1f4d2b; color: #9be0a8; }
+    .status.disconnected { background: #4d1f1f; color: #e09b9b; }
+    label { color: #b3b3b3; }
+    input[type=text] {
+      background: #0d0f12;
+      color: #d4d4d4;
+      border: 1px solid #2a2f37;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font: inherit;
+      width: 100px;
+    }
+    button {
+      background: #2a4d6e;
+      color: #cfe8ff;
+      border: 1px solid #3a6694;
+      padding: 4px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font: inherit;
+    }
+    button:hover { background: #3a6694; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    main {
+      display: grid;
+      grid-template-columns: 600px 1fr;
+      overflow: hidden;
+    }
+    #canvas-wrap {
+      padding: 12px;
+      background: #0a0c0f;
+      border-right: 1px solid #2a2f37;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    canvas {
+      background: #14181d;
+      border: 1px solid #2a2f37;
+      border-radius: 3px;
+      display: block;
+    }
+    .hint { color: #6b7280; font-size: 11px; }
+    #log {
+      overflow-y: auto;
+      padding: 8px 12px;
+      background: #0d0f12;
+    }
+    .entry { margin-bottom: 6px; line-height: 1.5; }
+    .entry.send { color: #9be0a8; }
+    .entry.recv { color: #cfe8ff; }
+    .entry.info { color: #b3b3b3; }
+    .entry.error { color: #e09b9b; }
+    .ts { color: #6b7280; }
+    pre { margin: 0; white-space: pre-wrap; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Necro DebugClient</h1>
+    <span id="status" class="status disconnected">disconnected</span>
+    <label>as: <input id="as" type="text" value="player_1" /></label>
+    <button id="reconnect">Connect</button>
+    <button id="ping" disabled>Send ping</button>
+    <span id="me" style="color: #9be0a8;"></span>
+    <span id="rtt" style="margin-left: auto; color: #b3b3b3;"></span>
+  </header>
+  <main>
+    <div id="canvas-wrap">
+      <canvas id="view" width="576" height="576"></canvas>
+      <div class="hint">WASD to move (when canvas/window is focused). Cyan = you. Cells = 50m spatial-grid.</div>
+    </div>
+    <div id="log"></div>
+  </main>
+  <script src="packets.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
