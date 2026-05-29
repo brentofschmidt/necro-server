@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace Game.Core.World;
 
 // One player's visible-to-others state for a given tick. Sent inside
@@ -7,6 +9,6 @@ namespace Game.Core.World;
 public sealed record PlayerSnapshot(
     EntityId Id,
     string Name,
-    Vec3 Position,
+    Vector3 Position,
     float Facing
 );

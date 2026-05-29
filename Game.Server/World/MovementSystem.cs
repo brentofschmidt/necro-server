@@ -1,4 +1,4 @@
-using Game.Core.World;
+using System.Numerics;
 
 namespace Game.Server.World;
 
@@ -22,11 +22,10 @@ internal static class MovementSystem
         {
             if (s.DesiredMove.LengthSquared() > 0f)
             {
-                var step = s.DesiredMove.Scale(WalkSpeed * dt);
-                s.Position = s.Position.Add(step);
+                s.Position += s.DesiredMove * (WalkSpeed * dt);
                 grid.Update(s.Id, s.Position);
             }
-            s.DesiredMove = Vec3.Zero;
+            s.DesiredMove = Vector3.Zero;
         }
     }
 }

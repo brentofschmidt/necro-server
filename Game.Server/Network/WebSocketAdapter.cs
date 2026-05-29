@@ -41,6 +41,25 @@ public sealed class WebSocketAdapter : INetworkAdapter
         await socket.SendAsync(payload, WebSocketMessageType.Text, endOfMessage: true, CancellationToken.None);
     }
 
+    public async Task CloseAsync(string connectionId, string reason)
+    {
+        var socket = _connections.Get(connectionId);
+        if (socket is null) return;
+        if (socket.State != WebSocketState.Open && socket.State != WebSocketState.CloseReceived) return;
+        try
+        {
+            // PolicyViolation is the right code for "you authenticated but
+            // the world rejected your session" (vs. NormalClosure which the
+            // client uses to mean "I'm leaving"). Receive loop's finally
+            // block handles registry removal + ConnectionClosed event.
+            await socket.CloseAsync(WebSocketCloseStatus.PolicyViolation, reason, CancellationToken.None);
+        }
+        catch (WebSocketException ex)
+        {
+            _logger.LogDebug(ex, "ws close raced on {ConnId}", connectionId);
+        }
+    }
+
     public async Task HandleConnection(HttpContext ctx)
     {
         if (!ctx.WebSockets.IsWebSocketRequest)

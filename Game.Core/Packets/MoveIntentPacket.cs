@@ -1,6 +1,6 @@
+using System.Numerics;
 using System.Text.Json.Serialization;
 using Game.Core.Network;
-using Game.Core.World;
 
 namespace Game.Core.Packets;
 
@@ -14,7 +14,7 @@ namespace Game.Core.Packets;
 // position, it echoes the highest sequence it has processed so the
 // client knows which inputs to replay.
 public sealed record MoveIntentPacket(
-    Vec3 Direction,
+    Vector3 Direction,
     float Facing,
     uint Sequence
 ) : IPacket

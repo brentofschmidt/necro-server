@@ -1,10 +1,14 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Numerics;
 using System.Text.Json;
 using Game.Core.Network;
 using Game.Core.Packets;
 using Game.Core.World;
 using Game.Server.Handlers;
+using Game.Server.Metrics;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 
 namespace Game.Server.World;
 
@@ -33,11 +37,29 @@ public sealed class WorldInstance
     private CancellationTokenSource? _cts;
     private Task? _tickTask;
 
+    // Pre-bound per-realm metric children so the hot paths don't pay the
+    // label-lookup cost every call. The realm_id label is stable for the
+    // lifetime of this instance.
+    private readonly Histogram.Child _mTickDuration;
+    private readonly Counter.Child _mTickBudgetExceeded;
+    private readonly Gauge.Child _mPlayersConnected;
+    private readonly Counter.Child _mPacketsReceived;
+    private readonly Counter.Child _mPacketsSent;
+    private readonly Counter.Child _mUnhandledExceptions;
+
     public WorldInstance(RealmConfig config, INetworkAdapter network, ILogger<WorldInstance> logger)
     {
         _config = config;
         _network = network;
         _logger = logger;
+
+        var realmLabel = _config.RealmId.ToString();
+        _mTickDuration = GameMetrics.TickDurationSeconds.WithLabels(realmLabel);
+        _mTickBudgetExceeded = GameMetrics.TickBudgetExceededTotal.WithLabels(realmLabel);
+        _mPlayersConnected = GameMetrics.PlayersConnected.WithLabels(realmLabel);
+        _mPacketsReceived = GameMetrics.PacketsReceivedTotal.WithLabels(realmLabel);
+        _mPacketsSent = GameMetrics.PacketsSentTotal.WithLabels(realmLabel);
+        _mUnhandledExceptions = GameMetrics.UnhandledExceptionsTotal.WithLabels(realmLabel);
     }
 
     public RealmConfig Config => _config;
@@ -86,12 +108,22 @@ public sealed class WorldInstance
     private async Task TickLoop(CancellationToken token)
     {
         var nextHeartbeat = DateTimeOffset.UtcNow.AddSeconds(1);
+        var sw = new Stopwatch();
         while (!token.IsCancellationRequested)
         {
-            var tickStart = DateTimeOffset.UtcNow;
+            sw.Restart();
             try { Tick(); }
-            catch (Exception ex) { _logger.LogError(ex, "tick {N} threw", _tickCount); }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "tick {N} threw", _tickCount);
+                _mUnhandledExceptions.Inc();
+            }
+            sw.Stop();
             _tickCount++;
+
+            var elapsedSec = sw.Elapsed.TotalSeconds;
+            _mTickDuration.Observe(elapsedSec);
+            if (elapsedSec > TickMs / 1000.0) _mTickBudgetExceeded.Inc();
 
             if (DateTimeOffset.UtcNow >= nextHeartbeat)
             {
@@ -99,8 +131,7 @@ public sealed class WorldInstance
                 nextHeartbeat = DateTimeOffset.UtcNow.AddSeconds(1);
             }
 
-            var elapsed = (DateTimeOffset.UtcNow - tickStart).TotalMilliseconds;
-            var sleep = TickMs - (int)elapsed;
+            var sleep = TickMs - (int)sw.Elapsed.TotalMilliseconds;
             if (sleep > 0)
             {
                 try { await Task.Delay(sleep, token); }
@@ -149,6 +180,10 @@ public sealed class WorldInstance
         if (!TryParsePlayerEntity(auth.Subject, out var entityId))
         {
             _logger.LogWarning("rejecting conn {ConnId}: unknown subject shape {Subject}", connectionId, auth.Subject);
+            // Fire-and-forget: don't block the tick on a socket close.
+            // ConnectionClosed will arrive via the event queue later and
+            // be a no-op since we never added a session for this conn.
+            _ = _network.CloseAsync(connectionId, "unknown subject");
             return;
         }
 
@@ -157,15 +192,17 @@ public sealed class WorldInstance
         if (_sessionsBySubject.TryGetValue(auth.Subject, out var existing))
         {
             _logger.LogInformation("kicking previous session {OldConn} for subject {Subject}", existing.ConnectionId, auth.Subject);
+            _ = _network.CloseAsync(existing.ConnectionId, "kicked by new login");
             RemoveSession(existing);
         }
 
-        var spawn = new Vec3(0, 0, 0);
+        var spawn = Vector3.Zero;
         var session = new PlayerSession(entityId, connectionId, auth.Subject, auth.DisplayName, spawn);
         _sessionsByConnection[connectionId] = session;
         _sessionsBySubject[auth.Subject] = session;
         _sessionsByEntity[entityId] = session;
         _grid.Update(entityId, spawn);
+        _mPlayersConnected.Inc();
 
         _logger.LogInformation("session created: {Subject} → {EntityId} at {Pos}", auth.Subject, entityId, spawn);
 
@@ -186,6 +223,7 @@ public sealed class WorldInstance
         _sessionsBySubject.Remove(session.Subject);
         _sessionsByEntity.Remove(session.Id);
         _grid.Remove(session.Id);
+        _mPlayersConnected.Dec();
         _logger.LogInformation("session removed: {Subject} ({EntityId})", session.Subject, session.Id);
     }
 
@@ -206,11 +244,13 @@ public sealed class WorldInstance
     {
         var envelope = PacketEnvelope.Of(packet);
         var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope);
+        _mPacketsSent.Inc();
         _ = _network.SendAsync(connectionId, bytes);
     }
 
     private void DispatchPacket(string connectionId, ReadOnlyMemory<byte> payload)
     {
+        _mPacketsReceived.Inc();
         PacketEnvelope? env;
         try
         {

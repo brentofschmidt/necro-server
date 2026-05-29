@@ -9,10 +9,21 @@ internal static class MoveIntentHandler
 {
     public static void Handle(MoveIntentPacket packet, PlayerSession session, ILogger logger)
     {
+        // Reject non-finite inputs at the boundary. NaN/Inf would propagate
+        // through normalization and silently corrupt position math (and
+        // through that, the spatial grid and every snapshot). Drop the
+        // intent; the client coasts to a halt next tick.
+        if (!packet.Direction.IsFinite() || !float.IsFinite(packet.Facing))
+        {
+            logger.LogWarning("rejecting non-finite move from {Entity} (dir={Dir} facing={Facing})",
+                session.Id, packet.Direction, packet.Facing);
+            return;
+        }
+
         // Normalize the requested direction. Clients that send length>1
         // (deliberately or by bug) are clamped to unit length so they
         // can't bypass the speed cap. Length<threshold means "stop."
-        var (dir, _) = packet.Direction.Normalized();
+        var (dir, _) = packet.Direction.NormalizedSafe();
         session.DesiredMove = dir;
         session.Facing = packet.Facing;
 

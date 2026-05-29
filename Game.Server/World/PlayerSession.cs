@@ -1,3 +1,4 @@
+using System.Numerics;
 using Game.Core.World;
 
 namespace Game.Server.World;
@@ -12,20 +13,20 @@ public sealed class PlayerSession
     public string Subject { get; }
     public string DisplayName { get; }
 
-    public Vec3 Position { get; set; }
+    public Vector3 Position { get; set; }
     public float Facing { get; set; }
 
     // Latest direction the client wants to move (normalized). Cleared each
     // tick after MovementSystem applies it. NOT a position delta; the
     // server picks the speed.
-    public Vec3 DesiredMove { get; set; } = Vec3.Zero;
+    public Vector3 DesiredMove { get; set; } = Vector3.Zero;
 
     // Highest MoveIntent.Sequence we've applied for this player. Echoed in
     // outgoing snapshots so the client knows which inputs have been
     // reconciled.
     public uint LastProcessedSequence { get; set; }
 
-    public PlayerSession(EntityId id, string connectionId, string subject, string displayName, Vec3 spawn)
+    public PlayerSession(EntityId id, string connectionId, string subject, string displayName, Vector3 spawn)
     {
         Id = id;
         ConnectionId = connectionId;

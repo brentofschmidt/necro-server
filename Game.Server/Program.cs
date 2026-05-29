@@ -1,6 +1,8 @@
+using Game.Server.Metrics;
 using Game.Server.Network;
 using Game.Server.World;
 using Microsoft.Extensions.FileProviders;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,9 +34,18 @@ var logger = app.Services.GetRequiredService<ILogger<Program>>();
 // Wire network → world inbox.
 var adapter = app.Services.GetRequiredService<WebSocketAdapter>();
 var world = app.Services.GetRequiredService<WorldInstance>();
+var connectionsActive = GameMetrics.ConnectionsActive.WithLabels(world.Config.RealmId.ToString(), "ws");
 adapter.PacketReceived += (connId, payload) => world.EnqueuePacket(connId, payload);
-adapter.ConnectionOpened += (connId, auth) => world.OnConnectionOpened(connId, auth);
-adapter.ConnectionClosed += connId => world.OnConnectionClosed(connId);
+adapter.ConnectionOpened += (connId, auth) =>
+{
+    connectionsActive.Inc();
+    world.OnConnectionOpened(connId, auth);
+};
+adapter.ConnectionClosed += connId =>
+{
+    connectionsActive.Dec();
+    world.OnConnectionClosed(connId);
+};
 
 // Serve DebugClient/ from the Necro/ root, walking up from the binary location.
 var debugClient = FindDebugClient(AppContext.BaseDirectory);
@@ -62,6 +73,7 @@ app.UseWebSockets();
 app.Map("/ws", async ctx => await adapter.HandleConnection(ctx));
 app.MapGet("/", () => Results.Redirect("/debug"));
 app.MapGet("/health", () => Results.Ok(new { realm = world.Config.RealmId, name = world.Config.Name }));
+app.MapMetrics();
 
 world.Start();
 logger.LogInformation("realm {RealmId} ready on http://localhost:{Port}", world.Config.RealmId, port);

@@ -1,3 +1,4 @@
+using System.Numerics;
 using Game.Core.World;
 
 namespace Game.Server.World;
@@ -16,7 +17,7 @@ public sealed class SpatialGrid
     private readonly Dictionary<(int, int), HashSet<EntityId>> _cells = new();
     private readonly Dictionary<EntityId, (int, int)> _entityCell = new();
 
-    public void Update(EntityId id, Vec3 position)
+    public void Update(EntityId id, Vector3 position)
     {
         var newCell = CellOf(position);
         if (_entityCell.TryGetValue(id, out var oldCell))
@@ -51,7 +52,7 @@ public sealed class SpatialGrid
     // Returns every entity in the 3x3 cell block around `center`. Slight
     // over-fetch (corners of the 3x3 block extend past the literal radius)
     // is the whole point — bounded set size, no per-entity distance math.
-    public IEnumerable<EntityId> Query(Vec3 center)
+    public IEnumerable<EntityId> Query(Vector3 center)
     {
         var (cx, cz) = CellOf(center);
         for (var dx = -1; dx <= 1; dx++)
@@ -64,6 +65,6 @@ public sealed class SpatialGrid
         }
     }
 
-    private static (int, int) CellOf(Vec3 pos)
+    private static (int, int) CellOf(Vector3 pos)
         => ((int)System.Math.Floor(pos.X / CellSize), (int)System.Math.Floor(pos.Z / CellSize));
 }

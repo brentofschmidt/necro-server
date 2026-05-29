@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Text.Json.Serialization;
 using Game.Core.Network;
 using Game.Core.World;
@@ -13,7 +14,7 @@ public sealed record WelcomePacket(
     string YourName,
     int RealmId,
     string RealmName,
-    Vec3 SpawnPosition
+    Vector3 SpawnPosition
 ) : IPacket
 {
     [JsonIgnore]
