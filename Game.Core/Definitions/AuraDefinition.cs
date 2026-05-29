@@ -10,7 +10,7 @@ public sealed record AuraDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     string? IconPath,
     float Duration,
     Guid? Type,

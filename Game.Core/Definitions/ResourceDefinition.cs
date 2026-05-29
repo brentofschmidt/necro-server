@@ -7,7 +7,7 @@ public sealed record ResourceDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
-    string? DisplayColor,
+    string Description,
+    string DisplayColor,
     int SortOrder
 );

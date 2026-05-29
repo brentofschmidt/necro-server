@@ -8,8 +8,8 @@ namespace Game.Core.Definitions;
 public sealed record ZoneConnectionDefinition(
     Guid Id,
     string Slug,
-    Guid FromZone,
-    Guid ToZone,
+    Guid? FromZone,
+    Guid? ToZone,
     Guid? ConnectionType,
-    string? Description
+    string Description
 );

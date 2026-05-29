@@ -7,6 +7,6 @@ public sealed record DamageTypeDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     int SortOrder
 );

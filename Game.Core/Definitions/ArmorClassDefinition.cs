@@ -8,6 +8,6 @@ public sealed record ArmorClassDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     int SortOrder
 );

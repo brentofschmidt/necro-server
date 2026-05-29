@@ -8,7 +8,7 @@ public sealed record RarityDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
-    string? DisplayColor,
+    string Description,
+    string DisplayColor,
     int SortOrder
 );

@@ -10,6 +10,6 @@ public sealed record EnchantDefinition(
     string DisplayName,
     string? Description,
     Guid[] AppliesToClasses,
-    Guid[] AppliesToSubclasses,
+    Guid[]? AppliesToSubclasses,
     string? IconPath
 );

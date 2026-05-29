@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using System.Text.Json.Serialization;
 using Game.Core.Network;
@@ -12,7 +13,7 @@ namespace Game.Core.Packets;
 public sealed record WelcomePacket(
     EntityId YourEntityId,
     string YourName,
-    int RealmId,
+    Guid RealmId,
     string RealmName,
     Vector3 SpawnPosition
 ) : IPacket

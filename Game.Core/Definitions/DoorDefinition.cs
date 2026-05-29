@@ -8,7 +8,7 @@ public sealed record DoorDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
-    Guid? LockType,
+    string Description,
+    Guid LockType,
     string? IconPath
 );

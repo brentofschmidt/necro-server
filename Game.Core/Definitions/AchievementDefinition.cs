@@ -9,7 +9,7 @@ public sealed record AchievementDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     Guid? Category,
     int Points,
     string? IconPath

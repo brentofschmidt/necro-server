@@ -13,8 +13,8 @@ public sealed record AffixDefinition(
     string? Description,
     Guid Type,
     Guid? AffixGroup,
-    Guid[] AppliesToClasses,
-    Guid[] AppliesToSubclasses,
-    int MinItemLevel,
+    Guid[]? AppliesToClasses,
+    Guid[]? AppliesToSubclasses,
+    short MinItemLevel,
     int Weight
 );

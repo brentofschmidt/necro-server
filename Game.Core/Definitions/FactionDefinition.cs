@@ -9,7 +9,7 @@ public sealed record FactionDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     Guid? StartingStanding,
     string? IconPath,
     int SortOrder

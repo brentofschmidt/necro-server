@@ -12,6 +12,6 @@ public sealed record AchievementCriterionDefinition(
     Guid ObjectiveType,
     Guid? Target,
     int RequiredCount,
-    string? Description,
+    string Description,
     int SortOrder
 );

@@ -8,9 +8,9 @@ public sealed record ZoneDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
-    Guid? Biome,
-    Guid? PvpRule,
+    string Description,
+    Guid Biome,
+    Guid PvpRule,
     int RecommendedLevelMin,
     int RecommendedLevelMax
 );

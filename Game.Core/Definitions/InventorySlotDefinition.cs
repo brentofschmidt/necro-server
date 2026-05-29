@@ -8,7 +8,7 @@ public sealed record InventorySlotDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     Guid? BodyRegion,
     int SortOrder
 );

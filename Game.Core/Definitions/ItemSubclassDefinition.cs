@@ -9,8 +9,8 @@ public sealed record ItemSubclassDefinition(
     string Slug,
     string DisplayName,
     string? Description,
-    Guid? ItemClass,
+    Guid ItemClass,
     bool Stackable,
-    Guid? InventorySlot,
+    Guid InventorySlot,
     int SortOrder
 );

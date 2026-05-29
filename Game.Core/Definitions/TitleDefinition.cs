@@ -8,8 +8,8 @@ public sealed record TitleDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     Guid? Category,
-    Guid? Placement,
+    Guid Placement,
     int SortOrder
 );

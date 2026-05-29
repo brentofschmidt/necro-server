@@ -9,9 +9,9 @@ public sealed record RecipeDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
-    Guid? CraftingStation,
-    Guid? RequiredSkillId,
+    string Description,
+    Guid CraftingStation,
+    Guid RequiredSkillId,
     int RequiredSkillLevel,
     float CraftingTime,
     int XpReward

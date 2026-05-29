@@ -11,7 +11,7 @@ public sealed record CreatureDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     Guid? Type,
     Guid? Size,
     int Level,
@@ -28,5 +28,5 @@ public sealed record CreatureDefinition(
     int BaseXp,
     Guid? LootTableId,
     string? IconPath,
-    string? DisplayColor
+    string DisplayColor
 );

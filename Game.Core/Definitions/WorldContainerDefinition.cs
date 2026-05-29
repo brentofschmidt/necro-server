@@ -8,9 +8,9 @@ public sealed record WorldContainerDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
-    Guid? ContainerType,
-    Guid? LockType,
+    string Description,
+    Guid ContainerType,
+    Guid LockType,
     int SlotCount,
     string? IconPath
 );

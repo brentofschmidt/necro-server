@@ -9,7 +9,7 @@ public sealed record RaceDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     string? IconPath,
     int SortOrder
 );

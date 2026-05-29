@@ -8,6 +8,6 @@ public sealed record ItemClassDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     int SortOrder
 );

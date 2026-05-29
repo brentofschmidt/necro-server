@@ -8,8 +8,8 @@ public sealed record PetDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     Guid? Type,
-    Guid? Rarity,
+    Guid Rarity,
     string? IconPath
 );

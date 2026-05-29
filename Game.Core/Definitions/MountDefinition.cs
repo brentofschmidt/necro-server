@@ -8,9 +8,9 @@ public sealed record MountDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     Guid? Type,
-    Guid? Rarity,
-    float? Speed,
+    Guid Rarity,
+    float Speed,
     string? IconPath
 );

@@ -8,9 +8,9 @@ public sealed record ResourceNodeDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
-    Guid? Type,
-    Guid? RequiredSkillId,
+    string Description,
+    Guid Type,
+    Guid RequiredSkillId,
     int RequiredSkillLevel,
     Guid? LootTableId,
     string? IconPath

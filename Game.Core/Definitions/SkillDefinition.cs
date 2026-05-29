@@ -10,6 +10,6 @@ public sealed record SkillDefinition(
     string Slug,
     string DisplayName,
     Guid? Category,
-    string? Description,
+    string Description,
     int MaxLevel
 );

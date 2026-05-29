@@ -9,7 +9,7 @@ public sealed record SpellDefinition(
     Guid Id,
     string Slug,
     string DisplayName,
-    string? Description,
+    string Description,
     string? IconPath,
     Guid? Type,
     Guid? Targeting,

@@ -18,9 +18,11 @@ builder.Services.AddSingleton<WebSocketAdapter>();
 builder.Services.AddSingleton<WorldInstance>(sp =>
 {
     var config = builder.Configuration.GetSection("Server");
+    // Default to Mortis (the seeded dev realm) when no RealmId is configured.
+    var defaultRealmId = Guid.Parse("e846aba4-67df-4bdd-97d7-d5d2e3625af1");
     var realm = new RealmConfig(
-        RealmId: config.GetValue<int>("RealmId", 1),
-        Name: config.GetValue<string>("RealmName") ?? "Realm 1");
+        RealmId: config.GetValue<Guid>("RealmId", defaultRealmId),
+        Name: config.GetValue<string>("RealmName") ?? "Mortis");
     return new WorldInstance(
         realm,
         sp.GetRequiredService<WebSocketAdapter>(),
